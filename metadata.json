@@ -1,0 +1,7 @@
+{
+  "name": "Rural Health Helpdesk",
+  "description": "A comprehensive healthcare kiosk platform for rural areas featuring AI-powered symptom analysis, doctor recommendations, and real-time consultation management.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
