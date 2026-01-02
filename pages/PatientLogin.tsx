@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { UserRole, UserAuth } from '../types';
-import { UserPlus, LogIn, Phone, Lock, UserCircle, AlertCircle } from 'lucide-react';
+import { UserPlus, LogIn, Phone, Lock, UserCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface PatientLoginProps {
   onLogin: (auth: UserAuth) => void;
@@ -55,8 +56,16 @@ const PatientLogin: React.FC<PatientLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-teal-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-teal-100">
+    <div className="min-h-screen bg-teal-50 flex items-center justify-center p-4 relative">
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white text-teal-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-teal-600 hover:text-white transition-all group border border-teal-100"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        Back to Home
+      </Link>
+
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-teal-100 mt-8">
         <div className="flex bg-slate-50 border-b">
           <button 
             onClick={() => { setIsLogin(true); setError(''); }}
@@ -98,7 +107,7 @@ const PatientLogin: React.FC<PatientLoginProps> = ({ onLogin }) => {
                 />
                 <select 
                   value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}
-                  className="px-5 py-3 border-2 border-slate-100 rounded-xl outline-none focus:border-teal-500 font-bold bg-white"
+                  className="px-5 py-3 border-2 border-slate-100 rounded-xl outline-none focus:border-teal-500 font-bold bg-white text-slate-900"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>

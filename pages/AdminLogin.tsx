@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { UserRole, UserAuth } from '../types';
-import { Lock, ShieldCheck, User as UserIcon, AlertCircle } from 'lucide-react';
+import { Lock, ShieldCheck, User as UserIcon, AlertCircle, ArrowLeft } from 'lucide-react';
 
 interface AdminLoginProps {
   onLogin: (auth: UserAuth) => void;
@@ -26,8 +27,16 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6">
-      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 relative">
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-teal-400 hover:text-white transition-all group border border-white/20 backdrop-blur-md"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        Back to Home
+      </Link>
+
+      <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 mt-8">
         <div className="p-12 space-y-10">
           <div className="text-center">
             <div className="w-20 h-20 bg-slate-900 text-teal-400 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-2xl">

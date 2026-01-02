@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { UserRole, UserAuth } from '../types';
-import { LogIn, Mail, Lock, Stethoscope, AlertTriangle, UserPlus, FileSearch } from 'lucide-react';
+import { LogIn, Mail, Lock, Stethoscope, AlertTriangle, UserPlus, FileSearch, ArrowLeft } from 'lucide-react';
 
 interface DoctorLoginProps {
   onLogin: (auth: UserAuth) => void;
@@ -53,8 +53,16 @@ const DoctorLogin: React.FC<DoctorLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-blue-100">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4 relative">
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-blue-600 hover:text-white transition-all group border border-blue-100"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        Back to Home
+      </Link>
+
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-blue-100 mt-8">
         <div className="p-10 space-y-8">
           <div className="text-center">
             <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">

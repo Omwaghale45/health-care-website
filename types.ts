@@ -3,7 +3,8 @@ export enum UserRole {
   PATIENT = 'patient',
   DOCTOR = 'doctor',
   AGENT = 'agent',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
+  GUEST = 'guest'
 }
 
 export enum Specialization {

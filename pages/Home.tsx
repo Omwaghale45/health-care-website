@@ -1,16 +1,32 @@
 
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { ShieldCheck, UserIcon, StethoscopeIcon, ArrowRight, LayoutDashboardIcon, Activity, Globe, Lock } from 'lucide-react';
+import { ShieldCheck, UserIcon, StethoscopeIcon, ArrowRight, LayoutDashboardIcon, Activity, Globe, Lock, UserCircle } from 'lucide-react';
 import { UserAuth, UserRole } from '../types';
 
-const Home: React.FC<{ auth: UserAuth | null }> = ({ auth }) => {
+interface HomeProps {
+  auth: UserAuth | null;
+  onLogin?: (auth: UserAuth) => void;
+}
+
+const Home: React.FC<HomeProps> = ({ auth, onLogin }) => {
   if (auth) {
     const target = auth.role === UserRole.AGENT ? '/dashboard' : 
                    auth.role === UserRole.PATIENT ? '/patient/portal' : 
-                   auth.role === UserRole.ADMIN ? '/admin/portal' : '/doctor/portal';
+                   auth.role === UserRole.ADMIN ? '/admin/portal' : 
+                   auth.role === UserRole.GUEST ? '/patient/ai-assistant' : '/doctor/portal';
     return <Navigate to={target} replace />;
   }
+
+  const handleGuestLogin = () => {
+    if (onLogin) {
+      onLogin({
+        id: 'guest_' + Math.random().toString(36).substr(2, 9),
+        name: 'Guest User',
+        role: UserRole.GUEST
+      });
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -49,9 +65,15 @@ const Home: React.FC<{ auth: UserAuth | null }> = ({ auth }) => {
             <Link to="/login/agent" className="w-full sm:w-auto px-12 py-5 bg-teal-500 text-slate-900 rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-teal-400 transition-all shadow-2xl shadow-teal-500/20">
               Agent Dashboard
             </Link>
-            <Link to="/login/patient" className="w-full sm:w-auto px-12 py-5 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black text-lg uppercase tracking-widest border border-white/20 hover:bg-white/20 transition-all">
+            <Link to="/login/patient" className="w-full sm:w-auto px-12 py-5 bg-white text-slate-900 rounded-2xl font-black text-lg uppercase tracking-widest border border-white/20 hover:bg-slate-50 transition-all">
               Patient Portal
             </Link>
+            <button 
+              onClick={handleGuestLogin}
+              className="w-full sm:w-auto px-12 py-5 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black text-lg uppercase tracking-widest border border-white/20 hover:bg-white/20 transition-all"
+            >
+              Continue as Guest
+            </button>
           </div>
         </div>
       </section>
@@ -63,9 +85,29 @@ const Home: React.FC<{ auth: UserAuth | null }> = ({ auth }) => {
           <div className="w-20 h-1.5 bg-teal-500 mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-10">
+        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-10">
+          {/* Guest Card */}
+          <div className="bg-emerald-50 p-10 rounded-[3rem] border-2 border-transparent hover:border-emerald-500 transition-all group relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12">
+              <UserCircle size={120} />
+            </div>
+            <div className="w-16 h-16 bg-white text-emerald-600 rounded-2xl flex items-center justify-center mb-8 shadow-xl shadow-emerald-100 ring-4 ring-white transition-transform group-hover:scale-110">
+              <UserCircle size={32} />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight">Quick Guest AI</h3>
+            <p className="text-slate-500 mb-10 leading-relaxed font-medium">
+              Immediate AI symptom analysis without an account. Note: History and booking require login.
+            </p>
+            <button 
+              onClick={handleGuestLogin}
+              className="inline-flex items-center gap-3 text-emerald-600 font-black uppercase tracking-widest text-sm hover:gap-5 transition-all"
+            >
+              Start AI Screening <ArrowRight size={20} />
+            </button>
+          </div>
+
           {/* Patient Card */}
-          <div className="bg-slate-50 p-12 rounded-[3rem] border-2 border-transparent hover:border-teal-500 transition-all group relative overflow-hidden">
+          <div className="bg-slate-50 p-10 rounded-[3rem] border-2 border-transparent hover:border-teal-500 transition-all group relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12">
               <UserIcon size={120} />
             </div>
@@ -82,7 +124,7 @@ const Home: React.FC<{ auth: UserAuth | null }> = ({ auth }) => {
           </div>
 
           {/* Doctor Card */}
-          <div className="bg-slate-50 p-12 rounded-[3rem] border-2 border-transparent hover:border-blue-500 transition-all group relative overflow-hidden">
+          <div className="bg-slate-50 p-10 rounded-[3rem] border-2 border-transparent hover:border-blue-500 transition-all group relative overflow-hidden">
              <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12">
               <StethoscopeIcon size={120} />
             </div>
@@ -104,7 +146,7 @@ const Home: React.FC<{ auth: UserAuth | null }> = ({ auth }) => {
           </div>
 
           {/* Agent Card */}
-          <div className="bg-slate-900 p-12 rounded-[3rem] shadow-2xl transition-all group relative overflow-hidden border-2 border-slate-800 hover:border-teal-500">
+          <div className="bg-slate-900 p-10 rounded-[3rem] shadow-2xl transition-all group relative overflow-hidden border-2 border-slate-800 hover:border-teal-500">
              <div className="absolute top-0 right-0 p-8 opacity-10 -rotate-12">
               <LayoutDashboardIcon size={120} />
             </div>

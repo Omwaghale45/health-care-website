@@ -21,6 +21,7 @@ import {
   LayoutDashboardIcon, 
   UsersIcon, 
   CalendarIcon, 
+  CalendarCheck,
   LogOutIcon,
   ShieldCheckIcon,
   UserIcon,
@@ -35,18 +36,19 @@ import { UserRole, UserAuth } from './types';
 // Role-based Route Guard
 const ProtectedRoute = ({ 
   auth, 
-  allowedRole, 
+  allowedRoles, 
   children 
 }: { 
   auth: UserAuth | null, 
-  allowedRole: UserRole, 
+  allowedRoles: UserRole[], 
   children: React.ReactNode 
 }) => {
   if (!auth) return <Navigate to="/" replace />;
-  if (auth.role !== allowedRole) {
+  if (!allowedRoles.includes(auth.role)) {
     const target = auth.role === UserRole.AGENT ? '/dashboard' : 
                    auth.role === UserRole.PATIENT ? '/patient/portal' : 
-                   auth.role === UserRole.ADMIN ? '/admin/portal' : '/doctor/portal';
+                   auth.role === UserRole.ADMIN ? '/admin/portal' : 
+                   auth.role === UserRole.GUEST ? '/patient/ai-assistant' : '/doctor/portal';
     return <Navigate to={target} replace />;
   }
   return <>{children}</>;
@@ -57,7 +59,8 @@ const PublicRoute = ({ auth, children }: { auth: UserAuth | null, children: Reac
   if (auth) {
     const target = auth.role === UserRole.AGENT ? '/dashboard' : 
                    auth.role === UserRole.PATIENT ? '/patient/portal' : 
-                   auth.role === UserRole.ADMIN ? '/admin/portal' : '/doctor/portal';
+                   auth.role === UserRole.ADMIN ? '/admin/portal' : 
+                   auth.role === UserRole.GUEST ? '/patient/ai-assistant' : '/doctor/portal';
     return <Navigate to={target} replace />;
   }
   return <>{children}</>;
@@ -76,7 +79,7 @@ const Sidebar = ({ auth, onLogout }: { auth: UserAuth, onLogout: () => void }) =
         ];
       case UserRole.DOCTOR:
         return [
-          { path: '/doctor/portal', label: 'My Schedule', icon: CalendarIcon },
+          { path: '/doctor/portal', label: 'My Schedule', icon: CalendarCheck },
           { path: '/doctors', label: 'Peer Directory', icon: UsersIcon },
         ];
       case UserRole.PATIENT:
@@ -84,6 +87,11 @@ const Sidebar = ({ auth, onLogout }: { auth: UserAuth, onLogout: () => void }) =
           { path: '/patient/portal', label: 'My Health History', icon: UserIcon },
           { path: '/patient/ai-assistant', label: 'AI Health Assistant', icon: Bot },
           { path: '/doctors', label: 'Book Consultation', icon: UsersIcon },
+        ];
+      case UserRole.GUEST:
+        return [
+          { path: '/patient/ai-assistant', label: 'AI Screening', icon: Bot },
+          { path: '/', label: 'Portal Home', icon: HomeIcon },
         ];
       case UserRole.ADMIN:
         return [
@@ -114,7 +122,7 @@ const Sidebar = ({ auth, onLogout }: { auth: UserAuth, onLogout: () => void }) =
 
       <nav className="flex-1 p-4 space-y-1">
         {getNavItems().map((item) => {
-          const Icon = item.icon;
+          const Icon = item.icon as any;
           const isActive = location.pathname === item.path;
           return (
             <Link
@@ -153,14 +161,14 @@ const App: React.FC = () => {
   });
 
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const warningRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<any>(null);
+  const warningRef = useRef<any>(null);
 
   const resetTimers = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (warningRef.current) clearTimeout(warningRef.current);
     
-    if (auth) {
+    if (auth && auth.role !== UserRole.GUEST) {
       warningRef.current = setTimeout(() => setShowTimeoutWarning(true), 25 * 60 * 1000);
       timeoutRef.current = setTimeout(() => handleLogout(), 30 * 60 * 1000);
     }
@@ -208,7 +216,7 @@ const App: React.FC = () => {
           )}
           
           <Routes>
-            <Route path="/" element={<Home auth={auth} />} />
+            <Route path="/" element={<Home auth={auth} onLogin={handleLogin} />} />
             <Route path="/login/patient" element={<PublicRoute auth={auth}><PatientLogin onLogin={handleLogin} /></PublicRoute>} />
             <Route path="/login/doctor" element={<PublicRoute auth={auth}><DoctorLogin onLogin={handleLogin} /></PublicRoute>} />
             <Route path="/login/agent" element={<PublicRoute auth={auth}><AgentLogin onLogin={handleLogin} /></PublicRoute>} />
@@ -218,37 +226,45 @@ const App: React.FC = () => {
             <Route path="/register/doctor/status" element={<PublicRoute auth={auth}><DoctorRegistrationStatus /></PublicRoute>} />
             
             <Route path="/dashboard" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.AGENT}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.AGENT]}>
                 <Dashboard />
               </ProtectedRoute>
             } />
             <Route path="/admin/portal" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.ADMIN}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.ADMIN]}>
                 <AdminPortal />
               </ProtectedRoute>
             } />
             <Route path="/appointments" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.AGENT}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.AGENT]}>
                 <Appointments />
               </ProtectedRoute>
             } />
             <Route path="/patient/portal" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.PATIENT}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.PATIENT]}>
                 <PatientPortal auth={auth} />
               </ProtectedRoute>
             } />
             <Route path="/patient/ai-assistant" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.PATIENT}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.PATIENT, UserRole.GUEST]}>
                 <AIHealthAssistant auth={auth} />
               </ProtectedRoute>
             } />
             <Route path="/doctor/portal" element={
-              <ProtectedRoute auth={auth} allowedRole={UserRole.DOCTOR}>
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.DOCTOR]}>
                 <DoctorPortal auth={auth} />
               </ProtectedRoute>
             } />
-            <Route path="/doctors" element={auth ? <Doctors /> : <Navigate to="/" />} />
-            <Route path="/doctor/:id" element={auth ? <DoctorProfile /> : <Navigate to="/" />} />
+            <Route path="/doctors" element={auth ? (
+              <ProtectedRoute auth={auth} allowedRoles={[UserRole.PATIENT, UserRole.DOCTOR, UserRole.ADMIN, UserRole.AGENT]}>
+                <Doctors />
+              </ProtectedRoute>
+            ) : <Navigate to="/" />} />
+            <Route path="/doctor/:id" element={auth ? (
+               <ProtectedRoute auth={auth} allowedRoles={[UserRole.PATIENT, UserRole.DOCTOR, UserRole.ADMIN, UserRole.AGENT]}>
+                <DoctorProfile />
+              </ProtectedRoute>
+            ) : <Navigate to="/" />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

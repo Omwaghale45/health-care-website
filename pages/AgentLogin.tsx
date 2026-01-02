@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { UserRole, UserAuth } from '../types';
-import { Lock, User as UserIcon } from 'lucide-react';
+import { Lock, User as UserIcon, ArrowLeft } from 'lucide-react';
 
 interface AgentLoginProps {
   onLogin: (auth: UserAuth) => void;
@@ -26,8 +27,16 @@ const AgentLogin: React.FC<AgentLoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-      <div className="bg-white p-12 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-200">
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative">
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-teal-600 hover:text-white transition-all group border border-white/20 backdrop-blur-md"
+      >
+        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+        Back to Home
+      </Link>
+
+      <div className="bg-white p-12 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-200 mt-8">
         <div className="flex flex-col items-center mb-10">
           <div className="w-20 h-20 bg-teal-100 text-teal-600 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-teal-50">
             <Lock size={40} />
